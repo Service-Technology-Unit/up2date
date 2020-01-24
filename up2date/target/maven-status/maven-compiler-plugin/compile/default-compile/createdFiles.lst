@@ -1,9 +1,0 @@
-edu\ucdavis\ucdh\stu\up2date\service\Poster.class
-edu\ucdavis\ucdh\stu\up2date\servlets\PublishServlet$1.class
-edu\ucdavis\ucdh\stu\up2date\servlets\PublishServlet.class
-edu\ucdavis\ucdh\stu\up2date\batch\PollingPublisher.class
-edu\ucdavis\ucdh\stu\up2date\service\Up2DateService$1.class
-edu\ucdavis\ucdh\stu\up2date\service\Up2DateService.class
-edu\ucdavis\ucdh\stu\up2date\servlets\PublisherServlet.class
-edu\ucdavis\ucdh\stu\up2date\batch\IdBasedPublisher.class
-edu\ucdavis\ucdh\stu\up2date\beans\Update.class

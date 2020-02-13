@@ -1,31 +1,20 @@
 package edu.ucdavis.ucdh.stu.up2date.service;
 
 import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.scheme.SchemeSocketFactory;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -58,7 +47,7 @@ public class Up2DateService {
     }
 
     public void post(Update update) {
-        Poster poster = new Poster(this.url + "/publish", update, this.createHttpClient());
+        Poster poster = new Poster(this.url + "/publish", update, HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build());
         if (this.max > 0) {
             ++this.runningCount;
             if (this.runningCount > this.max) {
@@ -80,7 +69,7 @@ public class Up2DateService {
             if (this.log.isDebugEnabled()) {
                 this.log.debug((Object)("Obtaining publisher data from the following URL: " + publisherUrl));
             }
-            HttpResponse response = this.createHttpClient().execute((HttpUriRequest)get);
+            HttpResponse response = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build().execute((HttpUriRequest)get);
             int rc = response.getStatusLine().getStatusCode();
             String resp = null;
             if (this.log.isDebugEnabled()) {
@@ -140,7 +129,7 @@ public class Up2DateService {
             ArrayList<BasicNameValuePair> postParameters = new ArrayList<BasicNameValuePair>();
             postParameters.add(new BasicNameValuePair("lastPolled", "" + lastPolled.getTime() + ""));
             post.setEntity((HttpEntity)new UrlEncodedFormEntity(postParameters));
-            HttpResponse response = this.createHttpClient().execute((HttpUriRequest)post);
+            HttpResponse response = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build().execute((HttpUriRequest)post);
             int rc = response.getStatusLine().getStatusCode();
             String resp = null;
             if (this.log.isDebugEnabled()) {
@@ -166,35 +155,5 @@ public class Up2DateService {
         }
         return success;
     }
-
-    private HttpClient createHttpClient() {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        try {
-            SSLContext ctx = SSLContext.getInstance("TLS");
-            X509TrustManager tm = new X509TrustManager() {
-
-                public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                }
-
-                public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                }
-
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-            };
-            ctx.init(null, new TrustManager[]{tm}, null);
-            SSLSocketFactory ssf = new SSLSocketFactory(ctx, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            ClientConnectionManager ccm = httpClient.getConnectionManager();
-            SchemeRegistry sr = ccm.getSchemeRegistry();
-            sr.register(new Scheme("https", 443, (SchemeSocketFactory)ssf));
-            httpClient = new DefaultHttpClient(ccm, httpClient.getParams());
-        }
-        catch (Exception e) {
-            this.log.error((Object)("Exception encountered: " + e.getClass().getName() + "; " + e.getMessage()), (Throwable)e);
-        }
-        return httpClient;
-    }
-
 }
 

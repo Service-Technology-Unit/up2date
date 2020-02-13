@@ -166,7 +166,7 @@ public class IdBasedPublisher implements SpringBatchJob {
         }
         sql = sql + ") ORDER BY ";
         sql = sql + this.srcIdColumn;
-        Class.forName(this.srcDriver).newInstance();
+        Class.forName(this.srcDriver);
         this.conn = DriverManager.getConnection(this.srcURL, this.srcUser, this.srcPassword);
         this.ps = this.conn.prepareStatement(sql);
         if (this.log.isDebugEnabled()) {

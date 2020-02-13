@@ -146,7 +146,7 @@ public class PollingPublisher implements SpringBatchJob {
             sql = String.valueOf(sql) + " > ?";
         }
         sql = String.valueOf(sql) + " ORDER BY LAST_UPDATE_DATE_TIME";
-        Class.forName(this.srcDriver).newInstance();
+        Class.forName(this.srcDriver);
         this.conn = DriverManager.getConnection(this.srcURL, this.srcUser, this.srcPassword);
         this.ps = this.conn.prepareStatement(sql);
         if (this.srcLastPolled != null) {

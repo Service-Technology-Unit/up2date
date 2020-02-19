@@ -31,11 +31,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import edu.ucdavis.ucdh.stu.core.utils.HttpClientProvider;
 
 public class PublishServlet
 extends HttpServlet {
@@ -293,13 +293,13 @@ extends HttpServlet {
     }
 
     private void postToSubscriber(HttpServletRequest req, int requestId, List<String> field, Map<String, String> subscriber, Connection conn) {
-        HttpClient client = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
         HttpPost post = new HttpPost(subscriber.get("url"));
         Date start = new Date();
         String contentType = "";
         String resp = "";
         int rc = 0;
         try {
+            HttpClient client = HttpClientProvider.getClient();
             HttpResponse response;
             ArrayList<BasicNameValuePair> urlParameters = new ArrayList<BasicNameValuePair>();
             urlParameters.add(new BasicNameValuePair("_rid", "" + requestId + ""));

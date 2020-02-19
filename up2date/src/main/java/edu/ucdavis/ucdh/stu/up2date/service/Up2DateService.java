@@ -9,15 +9,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import edu.ucdavis.ucdh.stu.core.utils.HttpClientProvider;
 import edu.ucdavis.ucdh.stu.up2date.beans.Update;
 
 public class Up2DateService {
@@ -26,28 +26,28 @@ public class Up2DateService {
     private int max;
     private int delay;
     private int runningCount;
+    private HttpClient client;
 
     public Up2DateService(String serviceEndPoint) {
-        this.log = LogFactory.getLog(this.getClass());
-        this.url = null;
-        this.max = 0;
-        this.delay = 1;
-        this.runningCount = 0;
-        this.url = serviceEndPoint;
+        this(serviceEndPoint, 0);
     }
 
     public Up2DateService(String serviceEndPoint, int maxConcurrent) {
         this.log = LogFactory.getLog(this.getClass());
         this.url = null;
-        this.max = 0;
         this.delay = 1;
         this.runningCount = 0;
         this.url = serviceEndPoint;
         this.max = maxConcurrent;
+        try {
+        	this.client = HttpClientProvider.getClient();
+        } catch (Exception e) {
+            this.log.error("Exception encountered while creating HTTP Client: " + e);
+       }
     }
 
     public void post(Update update) {
-        Poster poster = new Poster(this.url + "/publish", update, HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build());
+        Poster poster = new Poster(this.url + "/publish", update, client);
         if (this.max > 0) {
             ++this.runningCount;
             if (this.runningCount > this.max) {
@@ -69,7 +69,7 @@ public class Up2DateService {
             if (this.log.isDebugEnabled()) {
                 this.log.debug((Object)("Obtaining publisher data from the following URL: " + publisherUrl));
             }
-            HttpResponse response = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build().execute((HttpUriRequest)get);
+            HttpResponse response = client.execute((HttpUriRequest)get);
             int rc = response.getStatusLine().getStatusCode();
             String resp = null;
             if (this.log.isDebugEnabled()) {
@@ -129,7 +129,7 @@ public class Up2DateService {
             ArrayList<BasicNameValuePair> postParameters = new ArrayList<BasicNameValuePair>();
             postParameters.add(new BasicNameValuePair("lastPolled", "" + lastPolled.getTime() + ""));
             post.setEntity((HttpEntity)new UrlEncodedFormEntity(postParameters));
-            HttpResponse response = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build().execute((HttpUriRequest)post);
+            HttpResponse response = client.execute((HttpUriRequest)post);
             int rc = response.getStatusLine().getStatusCode();
             String resp = null;
             if (this.log.isDebugEnabled()) {

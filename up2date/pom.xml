@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.ucdavis.ucdh.stu</groupId>
   <artifactId>up2date</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <name>up2date</name>
 	<description>Service Technology Unit continuous update infrastructure</description>
 
@@ -228,7 +228,7 @@
 		<dependency>
 			<groupId>edu.ucdavis.ucdh.stu</groupId>
 			<artifactId>core</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 	</dependencies>
 

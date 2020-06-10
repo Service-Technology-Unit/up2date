@@ -36,7 +36,7 @@ implements Serializable {
         if (!Update.isInteger(publisherId)) {
             throw new IllegalArgumentException("\"" + publisherId + "\" is not a valid publisher ID.");
         }
-        if (!("add".equalsIgnoreCase(action) || "change".equalsIgnoreCase(action) || "delete".equalsIgnoreCase(action))) {
+        if (!("add".equalsIgnoreCase(action) || "change".equalsIgnoreCase(action) || "delete".equalsIgnoreCase(action) || "force".equalsIgnoreCase(action))) {
             throw new IllegalArgumentException("\"" + action + "\" is not a valid action.");
         }
         action = action.toLowerCase();
